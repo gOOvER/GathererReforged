@@ -88,95 +88,81 @@ function Gatherer.Util.Debug(str, ...)
 	Gatherer.Util.DebugFrame:AddMessage("DEBUG: "..str, 1.0, 1.0, 0.0)
 end
 
-if ( GetProfessions ) then
-
-
-function Gatherer.Util.GetSkills()
-	if ( not Gatherer.Var.Skills ) then Gatherer.Var.Skills = {}; end
-	Gatherer.Var.Skills.HERB = nil
-	Gatherer.Var.Skills.MINE = nil
-	local ProfessionTextures = Gatherer.Constants.ProfessionTextures;
-	local ProfessionSkillLines = Gatherer.Constants.ProfessionSkillLines;
-	local herbName = Gatherer.Locale and Gatherer.Locale.TrClient and Gatherer.Locale.TrClient("TRADE_HERBALISM")
-	local mineName = Gatherer.Locale and Gatherer.Locale.TrClient and Gatherer.Locale.TrClient("TRADE_MINING")
-	
-	for _, profId in pairs({GetProfessions()}) do
-		if profId then
-			local name, texture, skillRank, maxRank, _, _, skillLine = GetProfessionInfo(profId);
-			local gType = (skillLine and ProfessionSkillLines and ProfessionSkillLines[skillLine])
-				or (texture and ProfessionTextures and ProfessionTextures[texture])
-			if not gType and name then
-				if herbName and name == herbName then
-					gType = "HERB"
-				elseif mineName and name == mineName then
-					gType = "MINE"
-				end
-			end
-			if gType then
-				Gatherer.Var.Skills[gType] = math.max(skillRank or 1, 1);
-			end
-		end
-	end
-end
-
-
-else
-
-
 local checkingSkills = false
 
 function Gatherer.Util.GetSkills()
-	if ( checkingSkills or not GetNumSkillLines ) then return end -- avoid infinite loops
+	if checkingSkills then return end
 	checkingSkills = true
-	local GatherExpandedHeaders = {}
-	local i, j
-	
-	if ( not Gatherer.Var.Skills ) then Gatherer.Var.Skills = {}; end
+
+	if not Gatherer.Var.Skills then Gatherer.Var.Skills = {} end
 	Gatherer.Var.Skills.HERB = nil
 	Gatherer.Var.Skills.MINE = nil
-		
-	-- search the skill tree for gathering skills
-	for i=0, GetNumSkillLines(), 1 do
-		local skillName, header, isExpanded, skillRank = GetSkillLineInfo(i)
-	
-		-- expand the header if necessary
-		if ( header and not isExpanded ) then
-			GatherExpandedHeaders[i] = skillName
-		end
-	end
-	
-	ExpandSkillHeader(0)
-	for i=1, GetNumSkillLines(), 1 do
-		local skillName, header, _, skillRank = GetSkillLineInfo(i)
-		-- check for the skill name
-		if (skillName and not header) then
-			if (skillName == Gatherer.Locale.TrClient("TRADE_HERBALISM")) then
-				Gatherer.Var.Skills.HERB = skillRank
-			elseif (skillName == Gatherer.Locale.TrClient("TRADE_MINING")) then
-				Gatherer.Var.Skills.MINE = skillRank
-			end
-		end
-		
-		-- once we got both, no need to look the rest
-		if ( Gatherer.Var.Skills.HERB and Gatherer.Var.Skills.MINE ) then
-			break
-		end
-	end
-	
-	-- close headers expanded during search process
-	for i=0, GetNumSkillLines() do
-		local skillName, header, isExpanded = GetSkillLineInfo(i)
-		for j in pairs(GatherExpandedHeaders) do
-			if ( header and skillName == GatherExpandedHeaders[j] ) then
-				CollapseSkillHeader(i)
-				GatherExpandedHeaders[j] = nil
+
+	local ProfessionTextures = Gatherer.Constants and Gatherer.Constants.ProfessionTextures
+	local ProfessionSkillLines = Gatherer.Constants and Gatherer.Constants.ProfessionSkillLines
+	local herbName = Gatherer.Locale and Gatherer.Locale.TrClient and Gatherer.Locale.TrClient("TRADE_HERBALISM")
+	local mineName = Gatherer.Locale and Gatherer.Locale.TrClient and Gatherer.Locale.TrClient("TRADE_MINING")
+
+	-- 1. Try modern GetProfessions() API
+	if GetProfessions and GetProfessionInfo then
+		for _, profId in pairs({GetProfessions()}) do
+			if profId then
+				local name, texture, skillRank, maxRank, _, _, skillLine = GetProfessionInfo(profId)
+				local gType = (skillLine and ProfessionSkillLines and ProfessionSkillLines[skillLine])
+					or (texture and ProfessionTextures and ProfessionTextures[texture])
+				if not gType and name then
+					if herbName and name == herbName then
+						gType = "HERB"
+					elseif mineName and name == mineName then
+						gType = "MINE"
+					end
+				end
+				if gType then
+					Gatherer.Var.Skills[gType] = math.max(skillRank or 1, 1)
+				end
 			end
 		end
 	end
+
+	-- 2. Fallback to Classic GetNumSkillLines() / GetSkillLineInfo() (used on Classic Era / Forever)
+	if (not Gatherer.Var.Skills.HERB or not Gatherer.Var.Skills.MINE) and GetNumSkillLines and GetSkillLineInfo then
+		local GatherExpandedHeaders = {}
+		for i = 0, GetNumSkillLines(), 1 do
+			local skillName, header, isExpanded = GetSkillLineInfo(i)
+			if header and not isExpanded then
+				GatherExpandedHeaders[i] = skillName
+			end
+		end
+
+		if ExpandSkillHeader then pcall(ExpandSkillHeader, 0) end
+		for i = 1, GetNumSkillLines(), 1 do
+			local skillName, header, _, skillRank = GetSkillLineInfo(i)
+			if skillName and not header then
+				if herbName and skillName == herbName then
+					Gatherer.Var.Skills.HERB = math.max(skillRank or 1, 1)
+				elseif mineName and skillName == mineName then
+					Gatherer.Var.Skills.MINE = math.max(skillRank or 1, 1)
+				end
+			end
+			if Gatherer.Var.Skills.HERB and Gatherer.Var.Skills.MINE then
+				break
+			end
+		end
+
+		if CollapseSkillHeader then
+			for i = 0, GetNumSkillLines() do
+				local skillName, header = GetSkillLineInfo(i)
+				for j in pairs(GatherExpandedHeaders) do
+					if header and skillName == GatherExpandedHeaders[j] then
+						pcall(CollapseSkillHeader, i)
+						GatherExpandedHeaders[j] = nil
+					end
+				end
+			end
+		end
+	end
+
 	checkingSkills = false
-end
-
-
 end
 
 --******************************************************

@@ -74,7 +74,10 @@ function UIStyle.ApplyFont(fontString, delta, overrideFlags)
 end
 
 function UIStyle.ApplyBox(f, bgR, bgG, bgB, bgA, brR, brG, brB, brA)
-	if not f.SetBackdrop then return end
+	if not f or not f.SetBackdrop then return end
+	f.callbackBackdropColor = nil
+	if f.iborder and f.iborder.Hide then f.iborder:Hide() end
+	if f.oborder and f.oborder.Hide then f.oborder:Hide() end
 	f:SetBackdrop({
 		bgFile = WHITE_TEX,
 		edgeFile = WHITE_TEX,

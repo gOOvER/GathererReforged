@@ -12,7 +12,8 @@ Gatherer_DynamicNodes = Gatherer_DynamicNodes or {}
 local Scanner = Gatherer.Scanner
 
 local hooks = {}
-local lastTip = { tip = nil, time = 0, gType = nil }
+local lastTip = { tip = nil, time = 0, gType = nil, isRedReq = false }
+local lastClick = { tip = nil, time = 0, gType = nil }
 local lastCast = { target = nil, spellID = nil, gType = nil, time = 0 }
 local lootProcessed = false
 
@@ -205,6 +206,12 @@ function Scanner.RecordUnskilledGather(tipName, fallbackGType)
 	if UnitIsDeadOrGhost and UnitIsDeadOrGhost("player") then return false end
 	if not Gatherer or not Gatherer.Nodes or not Gatherer.Api or not Gatherer.Api.AddGather then return false end
 
+	-- Only record unskilled gathers when the player explicitly right-clicked the object recently (never on mouseover)
+	local now = GetTime()
+	if not lastClick.tip or (now - (lastClick.time or 0)) > 1.5 or lastClick.tip ~= tipName then
+		return false
+	end
+
 	local objId = (Gatherer.Nodes.ResolveNodeByName and Gatherer.Nodes.ResolveNodeByName(tipName))
 		or Gatherer.Nodes.Names[tipName]
 	local objGType = objId and Gatherer.Nodes.Objects[objId]
@@ -214,7 +221,7 @@ function Scanner.RecordUnskilledGather(tipName, fallbackGType)
 		return false
 	end
 
-	local gType = objGType or fallbackGType or lastTip.gType
+	local gType = objGType or fallbackGType or lastClick.gType or lastTip.gType
 	if not objId and (gType == "HERB" or gType == "MINE") and Gatherer.Nodes.RegisterDynamicNode then
 		objId = Gatherer.Nodes.RegisterDynamicNode(tipName, gType)
 	elseif objId and not Gatherer.Nodes.Names[tipName] then
@@ -224,12 +231,13 @@ function Scanner.RecordUnskilledGather(tipName, fallbackGType)
 		return false
 	end
 
-	local now = GetTime()
-	if lastUnskilledObj == objId and (now - lastUnskilledTime) < 3 then
+	if lastUnskilledObj == objId and (now - lastUnskilledTime) < 5 then
 		return false
 	end
 	lastUnskilledObj = objId
 	lastUnskilledTime = now
+	lastClick.tip = nil
+	lastClick.time = 0
 
 	return Gatherer.Api.AddGather(objId, gType, nil, "REQUIRE", 0, {}, false)
 end
@@ -723,13 +731,12 @@ function Scanner.Init()
 			lastTip.tip = nil
 			lastTip.gType = nil
 			lastTip.time = 0
+			lastClick.tip = nil
+			lastClick.gType = nil
+			lastClick.time = 0
 		elseif event == "UPDATE_MOUSEOVER_UNIT" then
 			Scanner.SetTooltip()
 		end
-	end)
-
-	scannerFrame:SetScript("OnUpdate", function(_, elapsed)
-		updateRadarScanner(elapsed)
 	end)
 
 	if GameTooltip then
@@ -740,7 +747,8 @@ function Scanner.Init()
 
 	if WorldFrame and WorldFrame.HookScript then
 		WorldFrame:HookScript("OnMouseDown", function(_, button)
-			if button ~= "LeftButton" and button ~= "RightButton" then return end
+			-- Only record click intent on RightButton (interact with object), never save nodes on mouse down!
+			if button ~= "RightButton" then return end
 			if not GameTooltip or not GameTooltip:IsShown() then return end
 			if UnitExists and UnitExists("mouseover") then return end
 			local owner = GameTooltip:GetOwner()
@@ -748,17 +756,9 @@ function Scanner.Init()
 
 			Scanner.SetTooltip()
 			if lastTip.tip and (GetTime() - (lastTip.time or 0)) < 1.0 then
-				local objId = Gatherer and Gatherer.Nodes and (
-					(Gatherer.Nodes.ResolveNodeByName and Gatherer.Nodes.ResolveNodeByName(lastTip.tip))
-					or (Gatherer.Nodes.Names and Gatherer.Nodes.Names[lastTip.tip])
-				)
-				local gType = (objId and Gatherer.Nodes.Objects and Gatherer.Nodes.Objects[objId]) or lastTip.gType
-				if gType == "HERB" or gType == "MINE" then
-					local hasSkill = Gatherer and Gatherer.Var and Gatherer.Var.Skills and Gatherer.Var.Skills[gType]
-					if (not hasSkill) or lastTip.isRedReq then
-						Scanner.RecordUnskilledGather(lastTip.tip, gType)
-					end
-				end
+				lastClick.tip = lastTip.tip
+				lastClick.gType = lastTip.gType
+				lastClick.time = GetTime()
 			end
 		end)
 	end

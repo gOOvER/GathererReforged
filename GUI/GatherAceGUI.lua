@@ -1711,7 +1711,10 @@ local function styleAceCheckBox(widget, UIStyle)
 			local ic = w.frame._gathCheckIcon
 			if w.check then w.check:SetAlpha(0) end
 			if w.checkbg then w.checkbg:SetAlpha(0) end
-			if w.checkbg and w.checkbg.backdrop then w.checkbg.backdrop:SetAlpha(0) end
+			if w.checkbg and w.checkbg.backdrop then
+				w.checkbg.backdrop:SetAlpha(0)
+				if w.checkbg.backdrop.Hide then w.checkbg.backdrop:Hide() end
+			end
 			if w.checked then
 				ic:Show()
 				UIStyle.ApplyBox(b, 0.13, 0.23, 0.19, 1, 0.82, 0.68, 0.20, 1)
@@ -1776,7 +1779,10 @@ local function styleAceWidgetsRecursive(widget)
 			if widget.editBox then UIStyle.ApplyFont(widget.editBox, 0) end
 		elseif widget.type == "Dropdown" then
 			if widget.label then UIStyle.ApplyFont(widget.label, -1) end
-			if widget.text then UIStyle.ApplyFont(widget.text, 0) end
+			if widget.text then
+				UIStyle.ApplyFont(widget.text, 0)
+				if widget.text.SetJustifyH then widget.text:SetJustifyH("LEFT") end
+			end
 		elseif widget.type == "Slider" then
 			if widget.label then UIStyle.ApplyFont(widget.label, 0) end
 			if widget.editbox then UIStyle.ApplyFont(widget.editbox, 0) end

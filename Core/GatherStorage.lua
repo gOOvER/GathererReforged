@@ -162,8 +162,8 @@ function lib.AddNode(nodeName, gatherType, inMapID, gatherX, gatherY, source, in
 	if not (data[zoneToken][gatherType]) then data[zoneToken][gatherType] = { }; end
 	local gtypeTable = data[zoneToken][gatherType]
 	
-	-- standard interact distance for objects is 5 yards
-	local matchDist = 10 -- radius of 5 yards
+	-- Merge distance for nearby gathers of the same node (20 yards or ~0.006 normalized zone coords)
+	local matchDist = 20
 	local isImport = false
 	if source and source:sub(1,3) == "DB:" then
 		-- DB sources have a tendancy to be more "fuzzy" than
@@ -177,14 +177,15 @@ function lib.AddNode(nodeName, gatherType, inMapID, gatherX, gatherY, source, in
 	for i, nodeData in ipairs(gtypeTable) do
 		if ( nodeData[FLOOR] == indoorFloor ) then
 			local dist
+			local rawDx = (gatherX - nodeData[POS_X]) * 1000
+			local rawDy = (gatherY - nodeData[POS_Y]) * 1000
+			local coordDist = math.sqrt(rawDx * rawDx + rawDy * rawDy)
 			if ( lib.MassImportMode ) then
-				local dx = (gatherX - nodeData[POS_X]) * 1000
-				local dy = (gatherY - nodeData[POS_Y]) * 1000
-				dist = math.sqrt(dx * dx + dy * dy)
+				dist = coordDist
 			else
 				dist = Map:ComputeDistance(mapID, mapFloor, gatherX, gatherY, mapID, mapFloor, nodeData[POS_X], nodeData[POS_Y])
 			end
-			if ( dist and dist < matchDist ) then
+			if ( (dist and dist < matchDist) or (coordDist < 6) ) then
 				
 				-- don't combine Treasure or Archaeology gathers into a common node unless they share a category
 				local allowByCategory = true
@@ -232,13 +233,21 @@ function lib.AddNode(nodeName, gatherType, inMapID, gatherX, gatherY, source, in
 		end
 
 		if ( count < 1 ) then
-			-- something is VERY WRONG
-			count = 1
+			-- Existing node was only an unharvested "REQUIRE" entry:
+			-- if we are now harvesting it, replace its position with the real harvest position;
+			-- otherwise keep the existing position.
+			if not incrementCount then
+				gatherX = node[POS_X]
+				gatherY = node[POS_Y]
+			end
+		elseif incrementCount then
+			-- Do a proper average of the node position only when actually harvested
+			gatherX = (gatherX + (node[POS_X] * count)) / (count + 1)
+			gatherY = (gatherY + (node[POS_Y] * count)) / (count + 1)
+		else
+			gatherX = node[POS_X]
+			gatherY = node[POS_Y]
 		end
-
-		-- Do a proper average of the node position
-		gatherX = (gatherX + (node[POS_X] * count)) / (count + 1)
-		gatherY = (gatherY + (node[POS_Y] * count)) / (count + 1)
 
 	-- Else, we didn't find it in the current list, time to create a new node!
 	else
@@ -379,6 +388,65 @@ function lib.PurgeInvalidDynamicNodes()
 					end
 					if #gtypeData == 0 then
 						zoneData[gType] = nil
+					else
+						-- Deduplicate nearby nodes of the same gatherType (e.g. trail of REQUIRE nodes created before harvest)
+						for i = #gtypeData, 2, -1 do
+							local nA = gtypeData[i]
+							local ax, ay = nA and nA[POS_X], nA and nA[POS_Y]
+							if type(ax) == "number" and type(ay) == "number" then
+								for j = i - 1, 1, -1 do
+									local nB = gtypeData[j]
+									local bx, by = nB and nB[POS_X], nB and nB[POS_Y]
+									if type(bx) == "number" and type(by) == "number" and nA[FLOOR] == nB[FLOOR] then
+										local dx = (ax - bx) * 1000
+										local dy = (ay - by) * 1000
+										local cDist = math.sqrt(dx * dx + dy * dy)
+										-- Check if both share at least one gatherID or if one is an unharvested REQUIRE trail within 15 units
+										local sharedID = false
+										local aCount, bCount = 0, 0
+										for k, v in pairs(nA) do
+											if type(v) == "table" then
+												aCount = aCount + (tonumber(v[COUNT]) or 0)
+												if type(nB[k]) == "table" then sharedID = true end
+											end
+										end
+										for _, v in pairs(nB) do
+											if type(v) == "table" then
+												bCount = bCount + (tonumber(v[COUNT]) or 0)
+											end
+										end
+										if (cDist < 6 and (gType == "HERB" or gType == "MINE" or sharedID))
+											or (cDist < 18 and sharedID and (aCount == 0 or bCount == 0)) then
+											-- Merge nA into nB, keeping the harvested node's coordinates
+											if aCount > 0 and bCount == 0 then
+												nB[POS_X], nB[POS_Y] = ax, ay
+											elseif aCount > 0 and bCount > 0 then
+												nB[POS_X] = (bx * bCount + ax * aCount) / (bCount + aCount)
+												nB[POS_Y] = (by * bCount + ay * aCount) / (bCount + aCount)
+											end
+											for k, v in pairs(nA) do
+												if type(v) == "table" then
+													if not nB[k] then
+														nB[k] = v
+													else
+														nB[k][COUNT] = (tonumber(nB[k][COUNT]) or 0) + (tonumber(v[COUNT]) or 0)
+														if (tonumber(v[HARVESTED]) or 0) > (tonumber(nB[k][HARVESTED]) or 0) then
+															nB[k][HARVESTED] = v[HARVESTED]
+														end
+														if not v[SOURCE] or nB[k][SOURCE] == "REQUIRE" then
+															nB[k][SOURCE] = v[SOURCE]
+														end
+													end
+												end
+											end
+											table.remove(gtypeData, i)
+											removed = removed + 1
+											break
+										end
+									end
+								end
+							end
+						end
 					end
 				end
 			end
