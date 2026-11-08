@@ -55,6 +55,26 @@ local acceptFrom = {}
 local commVersion = 2
 
 local lastHarvest = {}
+local lastMessage = ""
+local lastSentMessage = ""
+local lastSentTime = 0
+
+local function isSelfSender(who)
+	if not Gatherer.IsSafeString(who) then return false end
+	local myName = UnitName("player")
+	if not Gatherer.IsSafeString(myName) then return false end
+	if who == myName then return true end
+	local cleanWho = (who:match("^([^%-]+)") or who):match("^%s*(.-)%s*$")
+	local cleanMe = (myName:match("^([^%-]+)") or myName):match("^%s*(.-)%s*$")
+	if cleanWho:lower() == cleanMe:lower() then return true end
+	-- Support servers with character surnames where UnitName("player") and chat sender may differ by surname
+	if cleanWho:lower():sub(1, #cleanMe + 1) == (cleanMe:lower() .. " ") then return true end
+	if cleanMe:lower():sub(1, #cleanWho + 1) == (cleanWho:lower() .. " ") then return true end
+	if Ambiguate and Ambiguate(who, "none") == myName then return true end
+	return false
+end
+Gatherer.Comm.IsSelfSender = isSelfSender
+
 function Gatherer.Comm.Send( objectId, gatherType, indoorNode, gatherZ, gatherX, gatherY, nodeIndex )
 	if ( type(objectId) == "number" ) then
 		local zoneToken = Gatherer.ZoneTokens.GetZoneToken(gatherZ)
@@ -66,6 +86,9 @@ function Gatherer.Comm.Send( objectId, gatherType, indoorNode, gatherZ, gatherX,
 			local objName = Gatherer.Util.GetNodeName(objectId) or ""
 			local sendMessage = strjoin(";", objectId, tostring(zoneToken), tostring(indoorNode and true or false), gatherX, gatherY, tostring(gatherType or ""), objName)
 			sendMessage = strjoin(":", commVersion, sendMessage)
+			lastMessage = sendMessage
+			lastSentMessage = sendMessage
+			lastSentTime = GetTime and GetTime() or 0
 			if Gatherer.Config.GetSetting("guild.enable") then
 				if ( IsInGuild() ) then
 					safeSendAddonMessage("GathX", sendMessage, "GUILD")
@@ -124,24 +147,23 @@ function Gatherer.Comm.SendMsg( sendType, target, objectId, gatherType, indoorNo
 	local objName = Gatherer.Util.GetNodeName(objectId) or ""
 	local sendMessage = strjoin(";", objectId, tostring(zoneToken), tostring(indoorNode and true or false), gatherX, gatherY, tostring(gatherType or ""), objName)
 	sendMessage = strjoin(":", commVersion, sendMessage)
+	lastMessage = sendMessage
+	lastSentMessage = sendMessage
+	lastSentTime = GetTime and GetTime() or 0
 	safeSendAddonMessage("GathX", sendMessage, sendType, target)
-end
-
-local lastMessage = ""
-local function isSelfSender(who)
-	if not who then return false end
-	local myName = UnitName("player")
-	if not myName then return false end
-	if who == myName then return true end
-	local realm = GetRealmName()
-	if realm and who == (myName .. "-" .. realm:gsub(" ", "")) then return true end
-	if Ambiguate and Ambiguate(who, "none") == myName then return true end
-	return false
 end
 
 function Gatherer.Comm.Receive( message, how, who )
 	local setting = Gatherer.Config.GetSetting
 	local msgtype = "raid"
+
+	-- Ignore our own echoed broadcasts
+	if isSelfSender(who) then
+		return
+	end
+	if message == lastSentMessage and lastSentTime > 0 and ((GetTime and GetTime() or 0) - lastSentTime) < 15 then
+		return
+	end
 
 	-- check if the player is on our sharing blacklist
 	local blacklisted = Gatherer.Config.SharingBlacklist_IsPlayerIgnored(who)
@@ -149,7 +171,7 @@ function Gatherer.Comm.Receive( message, how, who )
 		return
 	end
 
-	if ( message ~= lastMessage and not isSelfSender(who) ) then
+	if ( message ~= lastMessage ) then
 		if (how == "GUILD") then msgtype = "guild" end
 		if (how == "WHISPER") then
 			msgtype = "whisper"

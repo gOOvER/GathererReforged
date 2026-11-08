@@ -1185,6 +1185,9 @@ function Integrations.MirrorNodeToGatherMate2(objectId, gatherType, zoneToken, x
 	isMirroringGM2 = false
 end
 
+local lastExternalSent = {}
+local lastExternalSentTime = 0
+
 function Integrations.BroadcastToExternalAddons(chatType, target, objectId, gatherType, zoneToken, x, y)
 	if not Gatherer.Config.GetSetting("sharing.bridge.enable", true) then return end
 	local uiMapID = tonumber(zoneToken)
@@ -1196,19 +1199,23 @@ function Integrations.BroadcastToExternalAddons(chatType, target, objectId, gath
 	local gmNodeID, dbType = Integrations.GetGatherMateNodeForObject(objectId, gatherType)
 	if gmNodeID and dbType then
 		local coord = floor(x * 10000 + 0.5) * 1000000 + floor(y * 10000 + 0.5) * 100
+		lastExternalSentTime = GetTime and GetTime() or 0
 		-- 1. Gatherer Reborn ("GRBNode") tab-delimited format: "1\t<zone>\t<nodeType>\t<coords>\t<nodeID>"
 		local grbPayload = table.concat({ "1", tostring(uiMapID), tostring(dbType), tostring(coord), tostring(gmNodeID) }, "\t")
+		lastExternalSent["GRBNode"] = grbPayload
 		safeSendAddonMessage("GRBNode", grbPayload, chatType, target)
 
 		-- 2. GatherMate_Sharing ("GM2SD") exact format ("A:%i:%i:%s:%i"): zone, dbIndexes[nodeType], coord, nodeID
 		local dbIndex = GM2_DB_INDEXES[dbType] or 5
 		local gm2Payload = string.format("A:%d:%d:%s:%d", uiMapID, dbIndex, tostring(coord), gmNodeID)
+		lastExternalSent["GM2SD"] = gm2Payload
 		safeSendAddonMessage("GM2SD", gm2Payload, chatType, target)
 
 		-- 3. GatherRadar ("GatherRadar") format: "1|<letter>,<map>,<coord>,<id>"
 		local grLetter = GR_LETTER_BY_DBTYPE[dbType]
 		if grLetter and (chatType == "PARTY" or chatType == "RAID" or chatType == "INSTANCE_CHAT") then
 			local grPayload = string.format("1|%s,%d,%.0f,%d", grLetter, uiMapID, coord, gmNodeID)
+			lastExternalSent["GatherRadar"] = grPayload
 			safeSendAddonMessage("GatherRadar", grPayload, chatType, target)
 		end
 	end
@@ -1219,9 +1226,15 @@ function Integrations.OnExternalAddonMessage(prefix, msg, how, who)
 	if not prefix or not msg or not EXTERNAL_PREFIXES[prefix] then return end
 	if not Gatherer.Config.GetSetting("sharing.bridge.enable", true) then return end
 
+	if Gatherer.Comm and Gatherer.Comm.IsSelfSender and Gatherer.Comm.IsSelfSender(who) then
+		return
+	end
+	if lastExternalSent[prefix] == msg and lastExternalSentTime > 0 and ((GetTime and GetTime() or 0) - lastExternalSentTime) < 15 then
+		return
+	end
 	local playerShort = UnitName("player")
-	local playerFull = playerShort and (playerShort .. "-" .. ((GetRealmName() or ""):gsub(" ", "")))
-	if who == playerShort or who == playerFull then
+	local cleanWho = type(who) == "string" and (who:match("^([^%-]+)") or who) or ""
+	if playerShort and (who == playerShort or cleanWho == playerShort) then
 		return
 	end
 
