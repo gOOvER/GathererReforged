@@ -5,6 +5,13 @@ All notable changes to **Gatherer Reforged** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-11-08
+
+### Fixed
+- **Preserve `Gatherer.IsSafeString` & `Gatherer.IsSafeValue` (`Core/GatherObjects.lua`, `Core/GatherComm.lua`)**:
+  - Preserved `Gatherer.IsSafeString` and `Gatherer.IsSafeValue` from `Core/GatherPolyfills.lua` when `Core/GatherObjects.lua` initializes the `Gatherer` table, and added a self-contained `isSafeStr` guard in `Core/GatherComm.lua`, fixing `GathererReforged/Core/GatherComm.lua:63: attempt to call a nil value`.
+  - Normalized hyphens and spaces in `isSelfSender(who)` (`"Shyvin-Shy"` vs `"Shyvin Shy"`) so self-sent node broadcasts are reliably suppressed on realms with multi-word character names.
+
 ## [1.0.2] - 2026-11-08
 
 ### Fixed

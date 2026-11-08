@@ -59,18 +59,31 @@ local lastMessage = ""
 local lastSentMessage = ""
 local lastSentTime = 0
 
+local function isSafeStr(val)
+	if type(val) ~= "string" then return false end
+	if _G.issecretvalue and _G.issecretvalue(val) then return false end
+	if _G.canaccessvalue and not _G.canaccessvalue(val) then return false end
+	local ok, nonEmpty = pcall(function() return val ~= "" end)
+	return ok and nonEmpty
+end
+
 local function isSelfSender(who)
-	if not Gatherer.IsSafeString(who) then return false end
+	if not isSafeStr(who) then return false end
 	local myName = UnitName("player")
-	if not Gatherer.IsSafeString(myName) then return false end
+	if not isSafeStr(myName) then return false end
 	if who == myName then return true end
-	local cleanWho = (who:match("^([^%-]+)") or who):match("^%s*(.-)%s*$")
-	local cleanMe = (myName:match("^([^%-]+)") or myName):match("^%s*(.-)%s*$")
-	if cleanWho:lower() == cleanMe:lower() then return true end
-	-- Support servers with character surnames where UnitName("player") and chat sender may differ by surname
-	if cleanWho:lower():sub(1, #cleanMe + 1) == (cleanMe:lower() .. " ") then return true end
-	if cleanMe:lower():sub(1, #cleanWho + 1) == (cleanWho:lower() .. " ") then return true end
 	if Ambiguate and Ambiguate(who, "none") == myName then return true end
+	-- Normalize hyphens and spaces for realms with multi-word character names ("Shyvin-Shy" vs "Shyvin Shy")
+	local normWho = who:lower():gsub("%-", " "):match("^%s*(.-)%s*$")
+	local normMe = myName:lower():gsub("%-", " "):match("^%s*(.-)%s*$")
+	if normWho == normMe then return true end
+	if normWho:sub(1, #normMe + 1) == (normMe .. " ") then return true end
+	if normMe:sub(1, #normWho + 1) == (normWho .. " ") then return true end
+	local cleanWho = (who:match("^([^%-]+)") or who):match("^%s*(.-)%s*$"):lower()
+	local cleanMe = (myName:match("^([^%-]+)") or myName):match("^%s*(.-)%s*$"):lower()
+	if cleanWho == cleanMe then return true end
+	if cleanWho:sub(1, #cleanMe + 1) == (cleanMe .. " ") then return true end
+	if cleanMe:sub(1, #cleanWho + 1) == (cleanWho .. " ") then return true end
 	return false
 end
 Gatherer.Comm.IsSelfSender = isSelfSender

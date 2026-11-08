@@ -17,9 +17,9 @@
 		You should have received a copy of the GNU General Public License
 		along with this program (see gpl.txt); if not, see <https://www.gnu.org/licenses/>.
 ]]
-Gatherer.Var.Version="1.0.1"
+Gatherer.Var.Version="1.0.3"
 if (Gatherer.Var.Version == "<%".."version%>") then
-	Gatherer.Var.Version = "1.0.1-DEV"
+	Gatherer.Var.Version = "1.0.3-DEV"
 end
 Gatherer.Version = Gatherer.Var.Version
 
