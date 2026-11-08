@@ -1,14 +1,18 @@
 <div align="center">
-  <img src=".github/social-preview.jpg" alt="Gatherer Reforged Banner" width="800" />
+  <img src=".github/assets/social-banner.png" alt="Gatherer Reforged Banner" width="100%" />
 
   # Gatherer Reforged
 
   **The legendary 2005 *Gatherer* addon by Norganna (last updated in 2017) — finally reforged for modern World of Warcraft!**
 
-  [![Release](https://github.com/gOOvER/GathererReforged/actions/workflows/release.yml/badge.svg)](https://github.com/gOOvER/GathererReforged/actions/workflows/release.yml)
   [![Code Quality](https://github.com/gOOvER/GathererReforged/actions/workflows/quality.yml/badge.svg)](https://github.com/gOOvER/GathererReforged/actions/workflows/quality.yml)
-  [![Wago Addons](https://img.shields.io/badge/Wago.io-GathererReforged-c1272d?logo=wagtail&logoColor=white)](https://addons.wago.io/addons/gathererreforged)
+  [![Release](https://github.com/gOOvER/GathererReforged/actions/workflows/release.yml/badge.svg)](https://github.com/gOOvER/GathererReforged/actions/workflows/release.yml)
+  [![GitHub Release](https://img.shields.io/github/v/release/gOOvER/GathererReforged?include_prereleases&label=Version&color=brightgreen&logo=github)](https://github.com/gOOvER/GathererReforged/releases/latest)
+  [![CurseForge](https://img.shields.io/badge/CurseForge-Gatherer%20Reforged-f16436?logo=curseforge&logoColor=white)](https://www.curseforge.com/wow/addons/gatherer-reforged)
+  [![Wago.io](https://img.shields.io/badge/Wago.io-Gatherer%20Reforged-c1272d?logo=wagtail&logoColor=white)](https://addons.wago.io/addons/ZKbqYR61)
+  [![WoW Versions](https://img.shields.io/badge/WoW-Retail%20%7C%20MoP%20%7C%20Cata%20%7C%20Wrath%20%7C%20TBC%20%7C%20Classic%20%7C%20Forever-f8b700?logo=battle.net&logoColor=white)](#-supported-wow-versions)
   [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+  [![Support](https://img.shields.io/badge/Support-donate.goover.dev-ff69b4?logo=ko-fi&logoColor=white)](https://donate.goover.dev)
 </div>
 
 ---
@@ -37,11 +41,11 @@ After **more than 20 years** since its birth in Vanilla and nearly a decade with
 
 ## 🌉 Cross-Addon Live Node Sharing Bridge
 
-Guilds and raid groups often use a mix of different gathering addons. **Gatherer Reforged** includes a built-in **Cross-Addon Sharing Bridge** that automatically **receives AND broadcasts** newly discovered nodes across all major gathering addon protocols in Guild, Party, Raid, and Instance channels:
+Guilds and raid groups often use a mix of different gathering addons. **Gatherer Reforged** includes a built-in **Cross-Addon Sharing Bridge** that automatically **receives AND broadcasts** newly discovered nodes across all major gathering addon protocols in Guild, Party, Raid, and Instance channels (with intelligent self-echo suppression including multi-word character surnames):
 
 | Addon / Protocol | Prefix | Direction | Description |
 | :--- | :--- | :--- | :--- |
-| **Gatherer Reforged & Classic Gatherer** | `GathX` / `Gatherer` |  bidirectional (`⇄`) | Native Gatherer protocol, enhanced to automatically register dynamic/custom nodes across clients, plus whisper mass-sharing. |
+| **Gatherer Reforged & Classic Gatherer** | `GathX` / `Gatherer` | bidirectional (`⇄`) | Native Gatherer protocol, enhanced to automatically register dynamic/custom nodes across clients, plus whisper mass-sharing. |
 | **Gatherer Reborn** | `GRBNode` | bidirectional (`⇄`) | Full support for *Gatherer Reborn*'s tab-delimited live sync (`1\t<zone>\t<nodeType>\t<coords>\t<nodeID>`) + local `GathererReborn*DB` import & live sync. |
 | **GatherMate_Sharing / GatherMate2_Sharing** | `GM2SD` / `GMSD` | bidirectional (`⇄`) | Exact protocol match (`A:<zone>:<dbIndex 1..7>:<coord>:<nodeID>`), acting as a modern replacement for the discontinued *GatherMate_Sharing* addon. |
 | **GatherLite** | `GATHERLITE` / `G2G` | receive (`←`) | Decodes both `AceSerializer-3.0` and delimited node broadcasts from *GatherLite* users. |
@@ -98,7 +102,7 @@ Use `/gather`, `/gatherer`, `/gathererreforged`, or `/greforged`:
 
 ## 📜 Credits & License
 
-- **Author (Reforged Modernization)**: [gOOvER](https://github.com/gOOvER)
-- **Original Gatherer Concept & Legacy**: Norganna's AddOns (Esamynn, MentalPower, jcarrothers)
+- **Original Addon (2005–2017)**: Norganna (*Norganna's AddOns*)
+- **Reforged Modernization**: **gOOvER** ([goover.dev](https://www.goover.dev))
 - **License**: [GNU General Public License v3.0 (GPL-3.0)](LICENSE)
-  - *Note on Licensing*: Norganna's original *Gatherer* (2005–2017) was released under the **GNU General Public License v2.0 ("either version 2 of the License, or (at your option) any later version")**. In accordance with the `GPL-2.0-or-later` re-licensing clause, **Gatherer Reforged** has been upgraded to **GNU General Public License v3.0 (GPL-3.0)**. The full GPLv3 license text is provided in [`LICENSE`](LICENSE), while the original GPLv2 license file ([`gpl.txt`](gpl.txt)) is preserved in the repository for historical reference.
+- **Support Development**: [donate.goover.dev](https://donate.goover.dev) • [Ko-fi](https://ko-fi.com/oldnoob) • [Buy Me a Coffee](https://www.buymeacoffee.com/goover)
