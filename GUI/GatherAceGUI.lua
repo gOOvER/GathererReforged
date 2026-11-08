@@ -1689,6 +1689,54 @@ local CONFIG_SECTIONS = {
 	{ key = "about",        icon = 133738, label = function() return _trL("CONFIG_SECTION_ABOUT") end },
 }
 
+local function styleAceCheckBox(widget, UIStyle)
+	if not widget or not widget.frame or not widget.checkbg then return end
+	local frame = widget.frame
+	if not frame._gathCheckBoxBg then
+		local box = CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate" or nil)
+		box:SetSize(18, 18)
+		box:SetPoint("CENTER", widget.checkbg, "CENTER", 0, 0)
+		UIStyle.ApplyBox(box, 0.06, 0.07, 0.10, 1, 0.30, 0.34, 0.44, 1)
+		frame._gathCheckBoxBg = box
+
+		local icon = box:CreateTexture(nil, "OVERLAY", nil, 7)
+		icon:SetSize(16, 16)
+		icon:SetPoint("CENTER", box, "CENTER", 0, 0)
+		icon:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+		frame._gathCheckIcon = icon
+
+		local function syncBoxState(w)
+			if not w or not w.frame or not w.frame._gathCheckBoxBg then return end
+			local b = w.frame._gathCheckBoxBg
+			local ic = w.frame._gathCheckIcon
+			if w.check then w.check:SetAlpha(0) end
+			if w.checkbg then w.checkbg:SetAlpha(0) end
+			if w.checkbg and w.checkbg.backdrop then w.checkbg.backdrop:SetAlpha(0) end
+			if w.checked then
+				ic:Show()
+				UIStyle.ApplyBox(b, 0.13, 0.23, 0.19, 1, 0.82, 0.68, 0.20, 1)
+			else
+				ic:Hide()
+				UIStyle.ApplyBox(b, 0.06, 0.07, 0.10, 1, 0.30, 0.34, 0.44, 1)
+			end
+			if w.disabled then
+				ic:SetDesaturated(true)
+				b:SetAlpha(0.45)
+			else
+				ic:SetDesaturated(false)
+				b:SetAlpha(1.0)
+			end
+		end
+
+		hooksecurefunc(widget, "SetValue", syncBoxState)
+		hooksecurefunc(widget, "SetDisabled", syncBoxState)
+		frame._gathSyncCheck = syncBoxState
+	end
+	if frame._gathSyncCheck then
+		frame._gathSyncCheck(widget)
+	end
+end
+
 local function styleAceWidgetsRecursive(widget)
 	if not widget then return end
 	local UIStyle = Gatherer.UIStyle
@@ -1705,6 +1753,7 @@ local function styleAceWidgetsRecursive(widget)
 		elseif (widget.type == "Label" or widget.type == "InteractiveLabel") and widget.label then
 			UIStyle.ApplyFont(widget.label, 0)
 		elseif widget.type == "CheckBox" and widget.text then
+			styleAceCheckBox(widget, UIStyle)
 			UIStyle.ApplyFont(widget.text, 0)
 			if widget.SetHeight then
 				widget:SetHeight(math.max(24, fontSize + 11))

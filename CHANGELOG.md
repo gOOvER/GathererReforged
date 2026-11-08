@@ -5,7 +5,7 @@ All notable changes to **Gatherer Reforged** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2026-11-07
+## [1.0.1] - 2026-11-08
 
 ### Added
 - **Dynamic Price Source Selector**: Added a **Price Source** dropdown under *Integrations & DB* that dynamically lists only currently installed/loaded Auction House addons (**Auctioneer Reforged**, **Auctionator**, **TradeSkillMaster (TSM)**, **OribosExchange**, **RECrystallize**) alongside *Automatic* and *Vendor Sell Price Only*.
@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Prioritized **Auctioneer Reforged** first when the price source is set to *Automatic*.
+
+### Fixed
+- Fixed missing close button (`UI-StopButton`) and checkbox checkmark (`UI-CheckBox-Check`) icons in `GathererConfigFrame`, `GathererReportFrame`, and `GathererNodeSearchFrame` when running alongside `ElvUI` / `AddOnSkins` or custom UI fonts.
 
 ## [1.0.0] - 2026-11-07
 
