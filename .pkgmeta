@@ -66,6 +66,7 @@ ignore:
     - .gitattributes
     - .luacheckrc
     - .pkgmeta
+    - assets
     - CHANGELOG.md
     - README.md
     - LICENSE
