@@ -1,6 +1,6 @@
 --[[
 	Gatherer Reforged Addon for World of Warcraft(tm).
-	Version: 1.0.1
+	Version: 1.0.4
 	Author: gOOvER
 
 	License:
@@ -17,9 +17,9 @@
 		You should have received a copy of the GNU General Public License
 		along with this program (see gpl.txt); if not, see <https://www.gnu.org/licenses/>.
 ]]
-Gatherer.Var.Version="1.0.3"
+Gatherer.Var.Version="1.0.4"
 if (Gatherer.Var.Version == "<%".."version%>") then
-	Gatherer.Var.Version = "1.0.3-DEV"
+	Gatherer.Var.Version = "1.0.4-DEV"
 end
 Gatherer.Version = Gatherer.Var.Version
 

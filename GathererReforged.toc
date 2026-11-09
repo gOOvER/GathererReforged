@@ -1,13 +1,13 @@
-## Interface: 11508, 11509, 16001, 20505, 20506, 30405, 38002, 40402, 50503, 50504, 120007, 120100, 120105, 120107
-## Interface-Retail: 120007, 120100, 120105, 120107
-## Interface-Classic: 11508, 11509
+## Interface: 11508, 11509, 16001, 20505, 20506, 30405, 38002, 40402, 50503, 50504, 110207, 120000, 120001, 120005, 120007, 120100, 120105, 120107
+## Interface-Retail: 110207, 120000, 120001, 120005, 120007, 120100, 120105, 120107
+## Interface-Classic: 11508, 11509, 16001
 ## Interface-BCC: 20505, 20506
-## Interface-Wrath: 30405
+## Interface-Wrath: 30405, 38002
 ## Interface-Cata: 40402
 ## Interface-Mists: 50503, 50504
-## 
+##
 ## Title: Gatherer Reforged
-## 
+##
 ## Notes: Gatherer Reforged remembers your gathering locations (herbs, ores, treasures, archaeology) and displays them on the World Map, Minimap, or in a 3D HUD overlay, with automatic guild and group sharing.
 ## Notes-itIT: Gatherer Reforged è un addon che ti consente di memorizzare i luoghi di raccolta e vederli tutti o alcuni sulla mappa principale, la tua minimappa, o su un'interfaccia a schermo. Consente inoltre di condividere le scoperte con la tua gilda, raid o i tuoi amici.
 ## Notes-ptBR: Gatherer Reforged é um addon que permite que você lembre-se dos locais de coleta e visualize-os em seu mapa principal, seu minimapa, ou em uma exibição no seu HUD. Ele também permite que você compartilhe suas descobertas com a sua guilda, raid ou seus amigos.
@@ -19,8 +19,8 @@
 ## Notes-esES: Gatherer es un addon que te permite recordar las zonas de recolección y verlas ya sea en todo el mapa del mundo o en tu minimapa. Tambien te permite compartir tus zonas de recolección con tu hermandad, raids o amigos.
 ## Notes-trTR: Gatherer, sizin toplama bölgelerinizi hatırlayan ve bunları oyun içinde, haritanızda ve küçük haritanızda göstermeyi sağlayan bir eklentidir. Ayrıca bu bilgileri arkadaşlarınız, guild veya raid'de ki kişilerle paylaşır.
 ## Notes-esMX: Este es un accesorio que te permite rastrear los nodos de las profesiones de herboristeria y mineria.  'Lordnica'
-## 
-## Version: 1.0.3
+##
+## Version: 1.0.4
 ## Author: gOOvER
 ## X-License: GPL-3.0
 ## X-Website: https://github.com/gOOvER/GathererReforged
@@ -30,14 +30,13 @@
 ## AddonCompartmentFunc: Gatherer_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: Gatherer_OnAddonCompartmentEnter
 ## AddonCompartmentFuncOnLeave: Gatherer_OnAddonCompartmentLeave
-## 
+##
 ## SavedVariables: GatherItems, Gatherer_DropRates, Gatherer_SavedSettings_AccountWide, Gatherer_DynamicNodes, Gatherer_SharingBlacklist
 ## SavedVariablesPerCharacter: Gatherer_SavedSettings_PerCharacter
-## OptionalDeps: Ace3, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, LibStub, GatherMate2, GatherMate2_Data, Auc-Advanced, Informant, Auctionator, TradeSkillMaster, FarmHud, Routes, MapWise, ElvUI, TomTom
+## X-Embeds: Ace3, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, LibStub
+## OptionalDeps: GatherMate2, GatherMate2_Data, Auc-Advanced, Informant, Auctionator, TradeSkillMaster, FarmHud, Routes, MapWise, ElvUI, TomTom
 
-#@no-lib-strip@
 embeds.xml
-#@end-no-lib-strip@
 
 # Core: Polyfills, Scanner, Base Object & Mapping Engine
 Core\GatherPolyfills.lua
