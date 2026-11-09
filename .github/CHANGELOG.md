@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.4] - 2026-11-09
 
 ### Fixed
-- **Single-TOC Packaging & Embedded Library Metadata (`.pkgmeta`, `GathererReforged.toc`, `Core/GatherMain.lua`)**:
-  - Disabled `enable-toc-creation` and `enable-nolib-creation` in `.pkgmeta` so release packages ship a single unified multi-version `GathererReforged.toc` (`## Interface: 11508, 11509, 16001, 20505, 20506, 30405, 38002, 40402, 50503, 50504, 110207, 120000, 120001, 120005, 120007, 120100, 120105, 120107`) instead of generating extra flavor-suffixed `_Mainline.toc` / `_Vanilla.toc` / `_TBC.toc` / `_Wrath.toc` / `_Cata.toc` / `_Mists.toc` files that caused WoW to flag the AddOn as `"Incompatible"`.
-  - Moved embedded libraries (`Ace3`, `LibSharedMedia-3.0`, `LibDBIcon-1.0`, `LibDataBroker-1.1`, `LibStub`) from `## OptionalDeps:` to `## X-Embeds:` and always include `embeds.xml` so CurseForge does not list embedded libraries as external dependencies.
+- **Flavor TOC Interface Versions & `no-lib` Metadata (`GathererReforged.toc`, `.pkgmeta`, `Core/GatherMain.lua`)**:
+  - Added all missing client interface numbers (`110207, 120000, 120001, 120005` in `## Interface-Retail:`, `16001` in `## Interface-Classic:`, and `38002` in `## Interface-Wrath:`) so generated flavor `.toc` files (`_Mainline.toc`, `_Vanilla.toc`, `_Wrath.toc`, etc.) include every supported client version and no longer trigger WoW's `"Incompatible"` warning.
+  - Added `## X-Embeds: Ace3, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, LibStub` alongside `## OptionalDeps:` and `#@no-lib-strip@` so both standard embedded packages and `-nolib` packages work seamlessly.
 
 ## [1.0.3] - 2026-11-08
 
