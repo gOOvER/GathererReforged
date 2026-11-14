@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Dynamic Addon Version in Tooltip (`Core/GatherMain.lua`)**: Read `Gatherer.Var.Version` directly from `GathererReforged.toc` metadata (`C_AddOns.GetAddOnMetadata` / `GetAddOnMetadata`) instead of a hardcoded `"1.0.4"` string so the LDB tooltip always matches the `.toc` version.
+
 ## [1.0.5] - 2026-11-14
 
 ### Fixed

@@ -22,7 +22,7 @@
 ## Notes-trTR: Gatherer, sizin toplama bölgelerinizi hatırlayan ve bunları oyun içinde, haritanızda ve küçük haritanızda göstermeyi sağlayan bir eklentidir. Ayrıca bu bilgileri arkadaşlarınız, guild veya raid'de ki kişilerle paylaşır.
 ## Notes-esMX: Este es un accesorio que te permite rastrear los nodos de las profesiones de herboristeria y mineria.  'Lordnica'
 ##
-## Version: 1.0.5
+## Version: 1.0.6
 ## Author: gOOvER
 ## X-License: GPL-3.0
 ## X-Website: https://github.com/gOOvER/GathererReforged
