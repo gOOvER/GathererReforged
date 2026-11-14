@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-14
+
 ### Added
 - **Full `OpenMap` Integration (`Core/GatherMap.lua`, `GUI/GatherMapNotes.lua`, `Core/GatherIntegrations.lua`, `GathererReforged.toc`)**:
   - Added `OpenMapAPI.WorldFromMap` / `OpenMapAPI.MapFromWorld` projection in `PlaceIconOnWorldMap` so Gatherer nodes align seamlessly across OpenMap's stitched world view (including adjacent zones outside `[0, 1]`).
