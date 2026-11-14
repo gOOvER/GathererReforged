@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-11-14
+
+### Fixed
+- **Packager `Interface-Wrath` / `Interface-Titan` & `Interface-Forever` Headers (`GathererReforged.toc`)**: Moved `38002` to `## Interface-Titan: 38002` and `16001` to `## Interface-Forever: 16001` so `BigWigsMods/packager@v2` validates all flavor `.toc` headers cleanly.
+
 ## [1.0.4] - 2026-11-14
 
 ### Added

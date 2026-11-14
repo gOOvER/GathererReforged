@@ -1,8 +1,10 @@
 ## Interface: 11508, 11509, 16001, 20505, 20506, 30405, 38002, 40402, 50503, 50504, 110207, 120000, 120001, 120005, 120007, 120100, 120105, 120107
 ## Interface-Retail: 110207, 120000, 120001, 120005, 120007, 120100, 120105, 120107
-## Interface-Classic: 11508, 11509, 16001
+## Interface-Classic: 11508, 11509
+## Interface-Forever: 16001
 ## Interface-BCC: 20505, 20506
-## Interface-Wrath: 30405, 38002
+## Interface-Wrath: 30405
+## Interface-Titan: 38002
 ## Interface-Cata: 40402
 ## Interface-Mists: 50503, 50504
 ##
@@ -20,7 +22,7 @@
 ## Notes-trTR: Gatherer, sizin toplama bölgelerinizi hatırlayan ve bunları oyun içinde, haritanızda ve küçük haritanızda göstermeyi sağlayan bir eklentidir. Ayrıca bu bilgileri arkadaşlarınız, guild veya raid'de ki kişilerle paylaşır.
 ## Notes-esMX: Este es un accesorio que te permite rastrear los nodos de las profesiones de herboristeria y mineria.  'Lordnica'
 ##
-## Version: 1.0.4
+## Version: 1.0.5
 ## Author: gOOvER
 ## X-License: GPL-3.0
 ## X-Website: https://github.com/gOOvER/GathererReforged
