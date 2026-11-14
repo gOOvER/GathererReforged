@@ -1413,13 +1413,62 @@ function Integrations.SetupGatherMate2LiveSync()
 	end
 end
 
+local openMapHooked = false
+function Integrations.SetupOpenMap()
+	if openMapHooked or not _G.OpenMapAPI then return end
+	local om = _G.OpenMapAPI
+	openMapHooked = true
+
+	if type(om.RegisterCallback) == "function" then
+		local redraw = function()
+			if Gatherer.MapNotes and Gatherer.MapNotes.MapDraw then
+				Gatherer.MapNotes.MapDraw()
+			end
+		end
+		pcall(om.RegisterCallback, Integrations, "OpenMap_StitchedChanged", redraw)
+		pcall(om.RegisterCallback, Integrations, "OpenMap_ViewChanged", redraw)
+	end
+
+	if type(om.RegisterMenuToggle) == "function" then
+		local function makeToggle(id, label, settingKey, icon)
+			pcall(om.RegisterMenuToggle, "GathererReforged", {
+				id = id,
+				label = label,
+				icon = icon,
+				tab = "show",
+				section = "Gatherer Reforged",
+				get = function()
+					return Gatherer.Config and Gatherer.Config.GetSetting(settingKey) and true or false
+				end,
+				set = function(val)
+					if Gatherer.Config and Gatherer.Config.SetSetting then
+						Gatherer.Config.SetSetting(settingKey, val and true or false)
+					end
+					if Gatherer.MapNotes and Gatherer.MapNotes.MapDraw then
+						Gatherer.MapNotes.MapDraw()
+					end
+					if Gatherer.MapNotes and Gatherer.MapNotes.UpdateWorldMapButton then
+						Gatherer.MapNotes.UpdateWorldMapButton()
+					end
+				end,
+			})
+		end
+
+		makeToggle("mainmap", "Gatherer Nodes", "mainmap.enable", "Interface\\AddOns\\GathererReforged\\Skin\\GatherOrb")
+		makeToggle("herbs", "Herbs", "show.mainmap.herbs")
+		makeToggle("mining", "Mining", "show.mainmap.mining")
+		makeToggle("open", "Treasures", "show.mainmap.open")
+	end
+end
+
 local bridgeFrame = CreateFrame("Frame")
 bridgeFrame:RegisterEvent("PLAYER_LOGIN")
 bridgeFrame:RegisterEvent("ADDON_LOADED")
 bridgeFrame:SetScript("OnEvent", function(_, event, arg1)
-	if event == "PLAYER_LOGIN" or arg1 == "FarmHud" or arg1 == "Routes" or arg1 == "GatherMate2" or arg1 == "Gatherer_Reborn" then
+	if event == "PLAYER_LOGIN" or arg1 == "FarmHud" or arg1 == "Routes" or arg1 == "GatherMate2" or arg1 == "Gatherer_Reborn" or arg1 == "OpenMap" then
 		Integrations.SetupFarmHud()
 		Integrations.SetupRoutes()
+		Integrations.SetupOpenMap()
 		Integrations.SetupGatherMate2LiveSync()
 		Integrations.RegisterSharingPrefixes()
 	end

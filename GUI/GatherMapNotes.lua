@@ -100,6 +100,13 @@ function Gatherer.MapNotes.UpdateOverlayLayering()
 		baseLevel = math.max(baseLevel, MapWiseAPI.Map.pinLevel + 5)
 	end
 
+	if _G.OpenMapAPI and type(_G.OpenMapAPI.ArtTopLevel) == "function" then
+		local ok, omArtTop = pcall(_G.OpenMapAPI.ArtTopLevel)
+		if ok and type(omArtTop) == "number" then
+			baseLevel = math.max(baseLevel, omArtTop + 10)
+		end
+	end
+
 	baseLevel = math.max(baseLevel, 2100)
 
 	if GathererMapOverlayParent:GetFrameLevel() ~= baseLevel then
@@ -468,16 +475,25 @@ function Gatherer.MapNotes.MapDraw()
 		drawZoneNodes(curZoneToken, mapID, mapFloor)
 	end
 
-	-- When viewing a Continent or World map (in MapWise, Leatrix_Maps, ElvUI, or Blizzard WorldMap),
-	-- also project nodes from all gathered child zones onto the continent/world canvas!
-	if isContinentOrWorldMap(curAreaID) and noteCount < maxNotes then
+	-- When viewing a Continent/World map or OpenMap's stitched world view,
+	-- also project nodes from gathered child/adjacent zones onto the canvas!
+	local om = _G.OpenMapAPI
+	local omStitched = om and type(om.IsStitched) == "function" and om.IsStitched()
+	if (isContinentOrWorldMap(curAreaID) or omStitched) and noteCount < maxNotes then
 		for _, zoneToken in Gatherer.Storage.GetAreaIndices() do
 			if zoneToken ~= curZoneToken then
 				local zMapID, zMapFloor = Gatherer.ZoneTokens.GetZoneMapIDAndFloor(zoneToken)
 				if zMapID then
-					drawZoneNodes(zoneToken, zMapID, zMapFloor)
-					if noteCount >= maxNotes then
-						break
+					local shouldDrawZone = true
+					if omStitched and type(om.WorldFromMap) == "function" then
+						local okW, u, v = pcall(om.WorldFromMap, zMapID, 0.5, 0.5)
+						shouldDrawZone = okW and type(u) == "number" and type(v) == "number"
+					end
+					if shouldDrawZone then
+						drawZoneNodes(zoneToken, zMapID, zMapFloor)
+						if noteCount >= maxNotes then
+							break
+						end
 					end
 				end
 			end

@@ -33,7 +33,7 @@
 ##
 ## SavedVariables: GatherItems, Gatherer_DropRates, Gatherer_SavedSettings_AccountWide, Gatherer_DynamicNodes, Gatherer_SharingBlacklist
 ## SavedVariablesPerCharacter: Gatherer_SavedSettings_PerCharacter
-## OptionalDeps: Ace3, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, LibStub, GatherMate2, GatherMate2_Data, Auc-Advanced, Informant, Auctionator, TradeSkillMaster, FarmHud, Routes, MapWise, ElvUI, TomTom
+## OptionalDeps: Ace3, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, LibStub, GatherMate2, GatherMate2_Data, Auc-Advanced, Informant, Auctionator, TradeSkillMaster, FarmHud, Routes, MapWise, OpenMap, ElvUI, TomTom
 ## X-Embeds: Ace3, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, LibStub
 
 #@no-lib-strip@

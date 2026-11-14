@@ -591,10 +591,23 @@ function Map:PlaceIconOnWorldMap(worldMapFrame, icon, mapID, mapFloor, xPos, yPo
 	local curMapID = _G.GetCurrentMapAreaID()
 	local projX, projY
 
+	-- OpenMap integration: project via OpenMapAPI when OpenMap's stitched map is active
+	local om = _G.OpenMapAPI
+	local omStitched = om and type(om.IsStitched) == "function" and om.IsStitched()
+	if omStitched and curMapID and type(om.WorldFromMap) == "function" and type(om.MapFromWorld) == "function" then
+		local okW, u, v = pcall(om.WorldFromMap, mapID, xPos, yPos)
+		if okW and type(u) == "number" and type(v) == "number" then
+			local okM, px, py = pcall(om.MapFromWorld, curMapID, u, v)
+			if okM and type(px) == "number" and type(py) == "number" then
+				projX, projY = px, py
+			end
+		end
+	end
+
 	-- MapWise integration: use MapWiseAPI.Project when MapWise is active so Gatherer pins match both
 	-- MapWise's calibrated terrain projection (aspect-fitted tiles) and continent/Azeroth views
 	local mw = _G.MapWiseAPI
-	if mw and mw.Map and mw.Data and mw.Data.maps and mw.db and type(mw.Project) == "function" then
+	if not (projX and projY) and mw and mw.Map and mw.Data and mw.Data.maps and mw.db and type(mw.Project) == "function" then
 		local mwMapKey = mw.db.map
 		local mwMap = mwMapKey and mw.Data.maps[mwMapKey]
 		if mwMap then
@@ -622,7 +635,11 @@ function Map:PlaceIconOnWorldMap(worldMapFrame, icon, mapID, mapFloor, xPos, yPo
 		end
 	end
 
-	if not (projX and projY) or projX < 0 or projX > 1 or projY < 0 or projY > 1 then
+	if not (projX and projY) then
+		icon:Hide()
+		return -1
+	end
+	if not omStitched and (projX < 0 or projX > 1 or projY < 0 or projY > 1) then
 		icon:Hide()
 		return -1
 	end

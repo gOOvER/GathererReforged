@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Full `OpenMap` Integration (`Core/GatherMap.lua`, `GUI/GatherMapNotes.lua`, `Core/GatherIntegrations.lua`, `GathererReforged.toc`)**:
+  - Added `OpenMapAPI.WorldFromMap` / `OpenMapAPI.MapFromWorld` projection in `PlaceIconOnWorldMap` so Gatherer nodes align seamlessly across OpenMap's stitched world view (including adjacent zones outside `[0, 1]`).
+  - Added `OpenMapAPI.ArtTopLevel()` layering in `UpdateOverlayLayering` so Gatherer pins always render above OpenMap's stitched terrain art.
+  - Registered `OpenMap_StitchedChanged` and `OpenMap_ViewChanged` callbacks plus **OpenMap** Show-menu toggles (`Gatherer Nodes`, `Herbs`, `Mining`, `Treasures`) via `OpenMapAPI.RegisterMenuToggle`.
+
 ### Fixed
 - **OpenMap & WorldMap Canvas Zoom Pin Scaling (`GUI/GatherMapNotes.lua`)**: Hooked `WorldMapFrame.OnCanvasScaleChanged` in addition to `WorldMapFrame.ScrollContainer.OnCanvasScaleChanged` so map addons that zoom the canvas directly (such as **OpenMap**) trigger pin rescaling instead of leaving WorldMap nodes oversized.
 - **Flavor TOC Interface Versions & `no-lib` Metadata (`GathererReforged.toc`, `.pkgmeta`, `Core/GatherMain.lua`)**:
