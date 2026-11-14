@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **OpenMap & WorldMap Canvas Zoom Pin Scaling (`GUI/GatherMapNotes.lua`)**: Hooked `WorldMapFrame.OnCanvasScaleChanged` in addition to `WorldMapFrame.ScrollContainer.OnCanvasScaleChanged` so map addons that zoom the canvas directly (such as **OpenMap**) trigger pin rescaling instead of leaving WorldMap nodes oversized.
 - **Flavor TOC Interface Versions & `no-lib` Metadata (`GathererReforged.toc`, `.pkgmeta`, `Core/GatherMain.lua`)**:
   - Added all missing client interface numbers (`110207, 120000, 120001, 120005` in `## Interface-Retail:`, `16001` in `## Interface-Classic:`, and `38002` in `## Interface-Wrath:`) so generated flavor `.toc` files (`_Mainline.toc`, `_Vanilla.toc`, `_Wrath.toc`, etc.) include every supported client version and no longer trigger WoW's `"Incompatible"` warning.
   - Added `## X-Embeds: Ace3, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, LibStub` alongside `## OptionalDeps:` and `#@no-lib-strip@` so both standard embedded packages and `-nolib` packages work seamlessly.

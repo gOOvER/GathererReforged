@@ -300,6 +300,11 @@ if ( WorldMapFrame ) then
 	WorldMapFrame:HookScript("OnSizeChanged", function()
 		Gatherer.MapNotes.MapDraw()
 	end)
+	if WorldMapFrame.OnCanvasScaleChanged then
+		hooksecurefunc(WorldMapFrame, "OnCanvasScaleChanged", function()
+			Gatherer.MapNotes.MapDraw()
+		end)
+	end
 	if WorldMapFrame.ScrollContainer then
 		if WorldMapFrame.ScrollContainer.OnCanvasSizeChanged then
 			hooksecurefunc(WorldMapFrame.ScrollContainer, "OnCanvasSizeChanged", function()
